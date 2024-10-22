@@ -1,0 +1,258 @@
+<div [ngClass]="{ 'dark-mode': isDark() }" class="chat-app-container">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-content-center min-vh-100">
+            <div class="col-lg-12 overflow-hidden">
+                <div class="card chat-app">
+                    <div id="plist" class="people-list" [ngClass]="{ hide: hide() }">
+                        <div class="clearfix userdetail">
+                            <div class="user">
+                                <img [src]="user()?.photoURL" alt="avatar" class="rounded-circle" width="10px" />
+                                <div class="about">
+                                    <div class="name">{{ user()?.displayName
+                                        }}</div>
+                                </div>
+                            </div>
+                            <div class="options">
+                                <div class="dropdown">
+                                    <button class="dropdown-toggle menu" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu p-2">
+                                        <li class="dropdown-item">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckDefault" (change)="toggleDarkMode()" />
+                                                <label class="form-check-label" for="flexSwitchCheckDefault">Dark
+                                                    mode</label>
+                                            </div>
+                                        </li>
+                                        <li class="dropdown-item">
+                                            <a (click)="logout()">
+                                                <i class="fa-solid fa-right-from-bracket"></i>
+                                                Logout
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="search form-control" placeholder="Search..."
+                                [(ngModel)]="searchString" (keyup.enter)="onSearch()" />
+                            <span class="search-icon"><i class="fa fa-search" (click)="onSearch()"></i></span>
+                        </div>
+                        <div class="oldchat">
+                            @if(!searchString() && chatHistory()){
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                @for(users of chatHistory(); track users){
+                                <li class="clearfix w-100 d-inline-flex" (click)="activateChat(users)"
+                                    [ngClass]="{ active: activeChat.value?.uid === users.uid }">
+                                    <div>
+                                        <img [src]="users.photoUrl" alt="avatar" class="rounded-circle chat-avatar" />
+                                    </div>
+                                    <div class="about w-100">
+                                        <div class="header d-flex justify-content-between w-100">
+                                            <div class="name">
+                                                <h6>
+                                                    {{
+                                                    users.uid === user()?.uid ?
+                                                    "My" : users.username
+                                                    }}
+                                                </h6>
+                                            </div>
+                                            <div class="timestamp">
+                                                @if((getLastMessage(users).timestamp
+                                                | date:'shortDate') ===
+                                                (todayDate() |
+                                                date:'shortDate')){
+                                                {{
+                                                getLastMessage(users).timestamp
+                                                | date : "shortTime"
+                                                }}
+                                                }@else if(
+                                                (getLastMessage(users).timestamp
+                                                | date : "MM/d/YYYY") ===
+                                                formateDate()){
+                                                {{
+                                                getLastMessage(users).timestamp
+                                                | date :"dd/MM/YYYY"
+                                                }}
+                                                }
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="message-body d-flex justify-content-between align-items-center w-100">
+                                            <span class="last-message">
+                                                {{ getLastMessage(users).message
+                                                | slice : 0 : 15 }}
+                                                {{
+                                                getLastMessage(users).message.length
+                                                > 15 ? "..." : ""
+                                                }}
+                                            </span>
+                                            <div *ngIf="getUnseenMessageCount(users.uid) > 0"
+                                                class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center unseen-count">
+                                                <span>{{
+                                                    getUnseenMessageCount(users.uid)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                }
+                            </ul>
+                            }@else{
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                @if(filteredUsers().length > 0){
+                                <small>Search results: {{ filteredUsers().length
+                                    }}</small>
+
+                                } @for(users of filteredUsers(); track users){
+                                <li class="clearfix" (click)="activateChat(users)">
+                                    <img [src]="users.photoUrl" alt="avatar" class="rounded-circle" />
+                                    <div class="about">
+                                        <div class="name">
+                                            {{ users.uid === user()?.uid ? "My"
+                                            : users.username }}
+                                        </div>
+                                    </div>
+                                </li>
+                                } @if(filteredUsers().length === 0){
+                                <li class="clearfix text-center active">No user
+                                    found!</li>
+                                }
+                            </ul>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="chat" [ngClass]="{ hide: !hide() }">
+                        <div class="chat-header clearfix" [ngClass]="{ 'd-none': !activeChat.value }">
+                            <div class="row">
+                                <div class="col-lg-6 col-6 d-flex align-items-center">
+                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#view_info">
+                                        <img [src]="activeChat.value?.photoUrl" alt="avatar" class="rounded-circle"
+                                            width="40" />
+                                    </a>
+                                    <div class="chat-about ms-2">
+                                        @if(activeChat.value?.uid ===
+                                        user()?.uid ){
+                                        <h6 class="mb-0">My</h6> }@else{
+                                        <h6 class="mb-0">{{activeChat.value?.username}}</h6>
+                                        }
+                                        <div class="status">
+                                            @if(activeChat.value){
+                                            @if(status()?.status === 'offline'){
+                                            <span>Last seen
+                                                {{ status()?.last_changed | date
+                                                : "shortTime" }}</span>
+                                            }@else {
+                                            <span>{{ status()?.status }}</span>
+                                            } }
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Right side with buttons -->
+                                <div
+                                    class="col-lg-6 col-6 d-flex justify-content-end align-items-center d-block d-lg-none d-md-none">
+                                    <div class="rounded-circle float-end">
+                                        <i class="fa-solid fa-arrow-left" (click)="back()"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat history and message input -->
+                        <div class="chat-history mb-0" [ngClass]="{ height: activeChat.value === null }">
+                            <ul class="m-b-0 list-unstyled">
+                                <div class="d-flex justify-content-center align-items-center mt-5 flex-column"
+                                    *ngIf="!activeChat.value">
+                                    <h6 class="mb-0">{{ "No chat selected"
+                                        }}</h6>
+                                    <small>Select a chat to start
+                                        chatting</small>
+                                </div>
+                                <div class="date-label">
+                                    <p><i class="fa-solid fa-lock"></i> Messages
+                                        are end to end encrypted</p>
+                                </div>
+                                @for(message of messages(); track message; let i
+                                = $index){ @if(i === 0 ||
+                                (message.timestamp | date: 'shortDate') !==
+                                (messages()[i - 1].timestamp | date:
+                                'shortDate')){
+                                <div class="date-label">
+                                    <p>
+                                        {{ (message.timestamp | date :
+                                        "shortDate") === (todayDate() | date :
+                                        "shortDate") ? "Today" :
+                                        (message.timestamp | date : "MM/d/YYYY")
+                                        ===
+                                        formateDate() ? "Yesterday" :
+                                        (message.timestamp | date :
+                                        "dd MMMM, y") }}
+                                    </p>
+                                </div>
+                                }
+                                <li class="clearfix" #chatMessage>
+                                    <div class="message" [ngClass]="{
+                                                      'my-message': message.senderId !== user()?.uid,
+                                                      'other-message float-end':
+                                                        message.senderId === user()?.uid
+                                                    }">
+                                        {{ crypto.decrypt(message.text) }}
+                                        
+                                        <span class="message-data-time order-2">{{
+                                            message.timestamp | date :
+                                            "shortTime"
+                                            }}</span>
+
+                                        <!-- Display ticks based on read status -->
+                                        <span class="message-status" *ngIf="message.senderId === user()?.uid">
+                                            <span class="material-symbols-outlined"
+                                                *ngIf="message.readStatus === 'sent'">
+                                                check
+                                            </span>
+                                            <span class="material-symbols-outlined"
+                                                *ngIf="message.readStatus === 'delivered'">
+                                                done_all
+                                            </span>
+                                            <span class="material-symbols-outlined"
+                                                *ngIf="message.readStatus === 'read'" style="color: green">
+                                                done_all
+                                            </span>
+                                        </span>
+                                    </div>
+                                </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <!-- Chat input -->
+                        <div class="chat-message clearfix">
+                            <div class="input-group mb-0 position-relative">
+                                <span class="emoji-icon">
+                                    <i class="fa-regular fa-face-smile" (click)="toggleEmojiPicker()"></i>
+                                </span>
+                                <input type="text" class="form-control" placeholder="Type a message here..."
+                                    [(ngModel)]="message" (keydown.enter)="sendMessage()"
+                                    [disabled]="!activeChat.value" />
+                                <button class="send-icon" type="submit">
+                                    <i class="fa-solid fa-paper-plane" (click)="sendMessage()"></i>
+                                </button>
+                            </div>
+                            <div class="emoji-picker-wrapper" *ngIf="showEmojiPicker() === true">
+                                <emoji-mart (set)="(emojiPickerProps.set)" (sheetSize)="(emojiPickerProps.sheetSize)"
+                                    (skin)="(emojiPickerProps.skin)" [isNative]="emojiPickerProps.isNative"
+                                    (emojiSelect)="addEmoji($event)"
+                                    [showPreview]="emojiPickerProps.preview"></emoji-mart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,78 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow border-0 p-5">
+    <div class="row">
+      <!-- Image Column (visible only on larger screens) -->
+      <div
+        class="col-12 col-md-6 d-none d-md-flex flex-column justify-content-between align-items-center order-2 p-5 h-100">
+        <img src="assets/images/undraw_website_5bo8.svg" class="img-fluid mb-3 float-end"
+          alt="Sign up image" width="500px" />
+        <div>
+          <a [routerLink]="['/login']" routerLinkActive="router-link-active" class="btn btn-link text-center"><i
+              class="fa-solid fa-arrow-left"></i>Already Signup!</a>
+        </div>
+      </div>
+
+      <!-- Login Form Column -->
+      <div class="col-12 col-md-6 d-flex flex-column justify-content-center order-1">
+        <h4 class="text-center mb-3 ">Create Account</h4>
+        <h3 class="text-center mb-4 fw-bold">SignUp</h3>
+        <form [formGroup]="loginForm" (ngSubmit)="onRegister()" class="mt-4">
+          <div class=" d-flex justify-content-center align-items-center position-relative ">
+            <div class="object-fit-cover position-relative">
+              <img [src]="profileImage()" alt="Profile Image" class="img-fluid rounded-circle img-thumbnail"
+                #profileImagePreview width="100px" *ngIf="!showCropper()"/>
+              <!-- Edit Icon (Pen) -->
+              <button (click)="editImage()"
+                class="btn bg-dark text-white rounded-circle shadow-sm position-absolute pen" type="button">
+                <i class="fas fa-pen"></i>
+              </button>
+              <input type="file" (change)="previewImage($event)" #fileInput class="d-none" />
+              
+            </div>
+            <div *ngIf="showCropper()" >
+              <image-cropper [imageChangedEvent]="imageChangedEvent()" [maintainAspectRatio]="true" [aspectRatio]="1 / 1"
+                format="jpeg" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded($event)"
+                 (loadImageFailed)="loadImageFailed()"></image-cropper>
+                <button (click)="finalizeCropping()" type="button" class="btn btn-box">Crop</button>
+            </div>
+          </div>
+          <div class="text-center mb-3">
+            <label class="fw-semibold ">Profile Image</label>
+          </div>
+          <div class="mb-2">
+            <label for="username" class="form-label">User Name</label>
+            <input type="username" id="username" class="form-control" placeholder="username"
+              formControlName="username" />
+            @if (loginForm.get('username')?.invalid && (loginForm.get('username')?.touched || submitted())) {
+            <div class="text-danger">
+              <small *ngIf="loginForm.get('username')?.errors?.['required']">username is required</small>
+            </div>
+            }
+          </div>
+          <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="Email" formControlName="email" />
+            @if (loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || submitted())) {
+            <div class="text-danger">
+              <small *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</small>
+            </div>
+            }
+          </div>
+          <div class="mb-2">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Password"
+              formControlName="password" />
+            @if (loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || submitted())) {
+            <div class="text-danger">
+              <small>Password is required</small>
+            </div>
+            }
+          </div>
+          <div class="text-center mt-4">
+            <button type="submit" class="btn w-100 btn-box">Create account</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

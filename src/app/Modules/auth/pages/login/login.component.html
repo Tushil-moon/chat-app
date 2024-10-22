@@ -1,0 +1,57 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow border-0 p-5">
+    <div class="row">
+      <!-- Image Column (visible only on larger screens) -->
+      <div
+        class="col-12 col-md-6 d-none d-md-flex flex-column justify-content-between align-items-center order-1 p-5 h-100">
+        <img src="assets/images/undraw_website_5bo8.svg" class="img-fluid mb-3 float-end"
+          alt="Sign up image" width="500px" />
+        <div>
+          <a [routerLink]="['/register']" routerLinkActive="router-link-active" class="btn btn-link text-center"><i
+              class="fa-solid fa-arrow-left"></i> Create an account</a>
+        </div>
+      </div>
+
+      <!-- Login Form Column -->
+      <div class="col-12 col-md-6 d-flex flex-column justify-content-center order-2">
+        <h4 class="text-center mb-3 ">Welcome Back</h4>
+        <h3 class="text-center mb-4 fw-bold">Login</h3>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="mt-4">
+          <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="Email" formControlName="email" />
+            @if (loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || submitted())) {
+            <div class="text-danger">
+              <small *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</small>
+            </div>
+            }
+          </div>
+          <div class="mb-2">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <input [type]="showPassword() ? 'text' : 'password'" id="password" class="form-control"
+                placeholder="Password" formControlName="password" />
+              <button type="button" class="btn bg-white border-1" (click)="togglePasswordVisibility()">
+                <i [ngClass]="showPassword() ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+              </button>
+            </div>
+            @if (loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || submitted())) {
+            @if(loginForm.get('password')?.errors?.['required']){
+            <div class="text-danger">
+              <small>Password is required</small>
+            </div>
+            }@else if(loginForm.get('password')?.errors?.['minlength']){
+            <div class="text-danger">
+              <small>Password must be 6 Character long</small>
+            </div>
+            }
+            }
+          </div>
+          <div class="text-center mt-4">
+            <button type="submit" class="btn w-100 btn-box">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

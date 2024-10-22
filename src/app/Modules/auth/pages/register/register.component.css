@@ -1,0 +1,44 @@
+.row {
+   gap: 20px;
+   flex-wrap: nowrap;
+}
+
+a {
+   text-decoration: none;
+   color: black;
+}
+
+i {
+   font-size: 11px;
+}
+
+.form-control {
+   font-size: 14px;
+}
+
+.form-control::placeholder {
+   font-size: 12px;
+}
+
+.btn-box {
+   font-size: 12px;
+   padding: 8px 8px;
+   background-color: #080808;
+   border-radius: 5px;
+   color: #ffffff;
+   border: 1px solid #080808;
+   border-radius: 5px;
+}
+
+.card {
+   background-color: #ededed;
+}
+
+label {
+   font-weight: medium;
+   font-size: 14px;
+}
+
+small {
+   font-size: 12px;
+}
